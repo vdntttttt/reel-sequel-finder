@@ -15,11 +15,13 @@ const Index = () => {
   const [reels, setReels] = useState<Reel[]>([]);
   const [predictedSequelIndex, setPredictedSequelIndex] = useState<number | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [currentReelUrl, setCurrentReelUrl] = useState<string>('');
 
   const handleSubmit = async (url: string) => {
     try {
       setIsLoading(true);
       setHasSearched(true);
+      setCurrentReelUrl(url);
       
       // Fetch creator's recent reels
       const fetchedReels = await fetchCreatorReels(url);
@@ -84,7 +86,7 @@ const Index = () => {
               <h2 className="text-2xl font-semibold text-center mb-6">
                 Want to find sequels even faster?
               </h2>
-              <AppWidgetPrompt />
+              <AppWidgetPrompt currentReelUrl={currentReelUrl} />
             </section>
           </>
         )}
