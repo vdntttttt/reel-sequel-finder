@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import LinkInput from '@/components/LinkInput';
 import ReelsGrid from '@/components/ReelsGrid';
@@ -9,6 +9,9 @@ import { Separator } from '@/components/ui/separator';
 import { fetchCreatorReels, predictSequelReel } from '@/services/reelService';
 import { Reel } from '@/types/reel';
 import { toast } from 'sonner';
+import { isSupabaseConfigured } from '@/lib/supabase';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,9 +19,20 @@ const Index = () => {
   const [predictedSequelIndex, setPredictedSequelIndex] = useState<number | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [currentReelUrl, setCurrentReelUrl] = useState<string>('');
+  const [supabaseConfigured, setSupabaseConfigured] = useState(true);
+
+  useEffect(() => {
+    // Check if Supabase is configured properly
+    setSupabaseConfigured(isSupabaseConfigured());
+  }, []);
 
   const handleSubmit = async (url: string) => {
     try {
+      // Show warning if Supabase is not configured
+      if (!supabaseConfigured) {
+        toast.warning("Supabase is not properly configured. Some features may be limited.");
+      }
+      
       setIsLoading(true);
       setHasSearched(true);
       setCurrentReelUrl(url);
@@ -46,6 +60,17 @@ const Index = () => {
       <Header />
       
       <main className="flex-grow container mx-auto px-4 py-8">
+        {!supabaseConfigured && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Missing Supabase Configuration</AlertTitle>
+            <AlertDescription>
+              The Supabase URL and/or API key are missing. Please set the VITE_SUPABASE_URL and 
+              VITE_SUPABASE_ANON_KEY environment variables to enable full functionality.
+            </AlertDescription>
+          </Alert>
+        )}
+      
         <section className="text-center mb-10">
           <h1 className="text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-pink">
             Find the Sequel to Any Instagram Reel
